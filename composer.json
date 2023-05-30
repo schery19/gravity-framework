@@ -1,5 +1,5 @@
 {
-    "name": "gravity/framework",
+    "name": "gravity-framework/gravity",
     "description": "Le framework gravity",
     "keywords": ["framework", "gravity", "php"],
     "license": "MIT",
