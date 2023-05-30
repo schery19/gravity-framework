@@ -1,0 +1,27 @@
+{
+    "name": "gravity/framework",
+    "description": "Le framework gravity",
+    "keywords": ["framework", "gravity", "php"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "\"Schneider Chéry\"",
+            "email": "schneiderchery7@gmail.com"
+        }
+    ],
+
+    "require": {
+    },
+    
+    "autoload": {
+        "psr-4": {
+            "Gravity\\Core\\": "src/",
+            "Gravity\\Core\\App\\": "src/app",
+            "Gravity\\Core\\Database\\": "src/database",
+            "Gravity\\Core\\Routing\\": "src/routes",
+            "sample\\": "sample/"
+        }
+    },
+
+    "minimum-stability": "dev"
+}
