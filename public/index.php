@@ -27,6 +27,7 @@ $router->get('/', 'Gravity\Core\App\Controllers\HomeController@index');
  *});
  *
  */
+$router->get('/details/:id', 'Gravity\Core\App\Controllers\HomeController@details');
 
 
 try {
