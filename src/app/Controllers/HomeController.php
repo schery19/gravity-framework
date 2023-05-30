@@ -15,6 +15,12 @@ class HomeController extends Controller {
 
 		return $this->renderView('Home.home', 'layout', ['name'=>$name]);
 	}
+
+
+	public function details($args) {
+
+		return $this->renderView('Home.details', 'layout', ['id'=>$args]);
+	}
 }
 
 ?>
