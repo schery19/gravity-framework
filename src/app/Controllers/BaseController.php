@@ -9,19 +9,16 @@ class BaseController extends Controller {
     /**
      * Sending a success response
      * 
-     * @param mixed $data
-     * @param mixed $message
-     * @param mixed $code
+     * @param string $view
+     * @param string $layout
+     * @param array $data
+     * @param int $code
      */
-    public function sendResponse($data, $message = "Successful", $code=200) {
-        $response = [
-            'error' => false,
-            'status'=>$code,
-            'message' => $message,
-            'data' => $data
-        ];
+    public function sendResponse($view, $layout, $data = array(), $code=200) {
 
-        return $this->renderJson($response, $code);
+        header("HTTP/1.1 {$code}");
+
+        return $this->renderView($view, $layout, $data);
     }
 
 
@@ -29,21 +26,20 @@ class BaseController extends Controller {
      * Sending an error message
      * 
      * @param mixed $error
-     * @param mixed $errorMessages
-     * @param mixed $code
+     * @param int $code
      */
-    public function sendError($error, $errorMessages = [], $code = 404) {
-        $response = [
-            'error'=> true,
-            'status'=>$code,
-            'message'=> $error
-        ];
+    public function sendError($error, $code = 404) {
 
-        if(!empty($errorMessages)) {
-            $response['issues'] = $errorMessages;
-        }
+        $view = '';
 
-        return $this->renderJson($response, $code);
+        if($code == 404)
+            $view = 'GRAVITY.ERRORS.404';
+        else
+            $view = 'GRAVITY.ERRORS.internal';
+        
+        header("HTTP/1.1 {$code}");
+
+        return $this->renderView($view, 'GRAVITY.layout', ['error'=>$error]);
     }
 
 }
