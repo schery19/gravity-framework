@@ -11,15 +11,14 @@
     ],
 
     "require": {
+        "gravity-framework/gravity-core": "^0.1",
+        "configs/configs.php": "*",
+        "configs/database.php": "*"
     },
-    
+
     "autoload": {
         "psr-4": {
-            "Gravity\\Core\\": "src/",
-            "Gravity\\Core\\App\\": "src/app",
-            "Gravity\\Core\\Database\\": "src/database",
-            "Gravity\\Core\\Routing\\": "src/routes",
-            "sample\\": "sample/"
+            "App\\": "src/app"
         }
     },
 
