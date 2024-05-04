@@ -3,10 +3,10 @@
 return [
     "server" => "mysql",
     "host" => "localhost",
-    "port" => "3307",
+    "port" => "3306",
     "user" => "root",
     "pass" => "",
-    "dbname" => "dcpr_service_license"
+    "dbname" => "mybase"
 ]
 
 ?>
