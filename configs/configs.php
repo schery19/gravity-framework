@@ -9,8 +9,8 @@ define('JS', SCRIPTS.'js'.DS);//Les fichiers javascript
 define('IMAGES', SCRIPTS.'images'.DS);//Les images
 
 
-//Vos propres constantes
-define('UPLOAD_URL', "http://localhost/licenses/upload.php");
+//Vous pouvez aussi définir vos propres constantes ici
+
 
 
 
