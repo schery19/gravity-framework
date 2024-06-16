@@ -2,6 +2,7 @@
     "name": "gravity-framework/gravity",
     "description": "Le framework gravity",
     "keywords": ["framework", "gravity", "php"],
+    "type": "project",
     "license": "MIT",
     "authors": [
         {
