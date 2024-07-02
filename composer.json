@@ -12,9 +12,7 @@
     ],
 
     "require": {
-        "gravity-framework/gravity-core": "^0.1",
-        "configs/configs.php": "*",
-        "configs/database.php": "*"
+        "gravity-framework/gravity-core": "^0.5"
     },
 
     "autoload": {
