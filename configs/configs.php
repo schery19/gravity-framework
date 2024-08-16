@@ -8,8 +8,10 @@ define('STYLES', SCRIPTS.'css'.DS);//Les fichiers css
 define('JS', SCRIPTS.'js'.DS);//Les fichiers javascript
 define('IMAGES', SCRIPTS.'images'.DS);//Les images
 
+define('DEBUG', true); //En mode développement
 
-//Vous pouvez aussi définir vos propres constantes ici
+
+//Vos propres constantes
 
 
 
