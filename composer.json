@@ -16,7 +16,7 @@
     ],
 
     "require": {
-        "gravity-framework/gravity-core": "^0.10"
+        "gravity-framework/gravity-core": "dev-main"
     },
 
     "autoload": {
