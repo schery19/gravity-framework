@@ -6,7 +6,7 @@ namespace App\Repository;
 use Gravity\Core\App\Repository\Repository as BaseRepository;
 
 
-class Repository extends BaseRepository {
+abstract class Repository extends BaseRepository {
 
     public static function update(Entity $entity) {
         
