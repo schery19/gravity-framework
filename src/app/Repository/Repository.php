@@ -4,7 +4,7 @@ namespace App\Repository;
 
 
 use Gravity\Core\App\Repository\Repository as BaseRepository;
-use App\Entity\Entity;
+use Gravity\Core\App\Entity\Entity;
 
 
 abstract class Repository extends BaseRepository {
