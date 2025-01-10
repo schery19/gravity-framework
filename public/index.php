@@ -12,7 +12,11 @@ require '../configs/configs.php';
 
 
 use App\Controllers\BaseController;
+use Gravity\Core\Exceptions\BadMethodException;
+use Gravity\Core\Exceptions\BadRequestException;
 use Gravity\Core\Exceptions\NotFoundException;
+use Gravity\Core\Exceptions\UnauthenticatedException;
+use Gravity\Core\Exceptions\UnauthorizedException;
 use Gravity\Core\Routing\Router;
 
 
@@ -31,10 +35,18 @@ $router->get('/', function() {
 try {
 	$router->run();
 } catch(NotFoundException $e) {
-	(new BaseController())->sendError($e);
-} catch(Exception $e) {
-	(new BaseController())->sendError($e, 500);
-} 
+	(new BaseController())->sendError("Not found error", $e->getMessage());
+} catch(BadRequestException $e) {
+	(new BaseController())->sendError("Request error", $e->getMessage(), 400);
+} catch(UnauthenticatedException $e) {
+	(new BaseController())->sendError("Unauthorized", $e->getMessage(), 401);
+} catch(UnauthorizedException $e) {
+	(new BaseController())->sendError("Unauthorized", $e->getMessage(), 403);
+} catch(BadMethodException $e) {
+	(new BaseController())->sendError("Method not allowed", $e->getMessage(), 405);
+}catch(\Exception $e) {
+	(new BaseController())->sendError("Internal error", $e->getMessage(), 503);
+}
 
 
 ?>
