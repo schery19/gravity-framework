@@ -26,9 +26,10 @@ class BaseController extends Controller {
      * Sending an error message
      * 
      * @param mixed $error
-     * @param int $code
+     * @param mixed $errorMessages
+     * @param mixed $code
      */
-    public function sendError($error, $code = 404) {
+    public function sendError($error, $errorMessages = [], $code = 404) {
 
         $view = '';
 
@@ -39,7 +40,7 @@ class BaseController extends Controller {
         
         header("HTTP/1.1 {$code}");
 
-        return $this->renderView($view, 'GRAVITY.layout', ['error'=>$error]);
+        return $this->renderView($view, 'GRAVITY.layout', ['error'=>$errorMessages]);
     }
 
 }
