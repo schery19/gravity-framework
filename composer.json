@@ -16,7 +16,7 @@
     ],
 
     "require": {
-        "gravity-framework/gravity-core": "^0.12"
+        "gravity-framework/gravity-core": "^0.15"
     },
 
     "autoload": {
