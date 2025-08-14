@@ -26,5 +26,8 @@
         }
     },
 
-    "minimum-stability": "dev"
+    "minimum-stability": "dev",
+    "scripts": {
+        "gravity": "php bin/gravity"
+    }
 }
