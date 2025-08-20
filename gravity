@@ -1,0 +1,452 @@
+#!/usr/bin/env php
+<?php
+
+// Tous droits réservés GRAVITY-CORE 2025
+// Distribués sous licence MIT
+// Voir le fichier LICENSE.txt pour plus de détails
+
+/**
+ * Gravity CLI Generator
+ */
+
+const EXIT_SUCCESS = 0;
+const EXIT_FAILURE = 1;
+
+function println($message = '') {
+	echo $message . PHP_EOL;
+}
+
+function usage() {
+	println('-------------------- Gravity CLI --------------------');
+	println('');
+	println('Commandes:');
+	println('  make:controller NameController [--force]');
+	println('  make:entity EntityName [--force]');
+	println('  make:repository NameRepository [--entity=EntityName] [--force]');
+	println('  make:resource NameRsource [--force]');
+	println('  make:routes NameRoutes [--force]');
+	println('  make:view Module.View [--title="Titre"] [--layout=GRAVITY.layout] [--force]');
+	println('  make:module ModuleName [--views] [--layout=GRAVITY.layout] [--force]');
+	println('');
+	println('Exemples:');
+	println('  php gravity make:controller UserController');
+	println('  php gravity make:entity User');
+	println('  php gravity make:repository UserRepository --entity=User');
+	println('  php gravity make:resource UserResource');
+	println('  php gravity make:routes UserRoutes');
+	println('  php gravity make:view Blog.index --title="Blog"');
+	println('  php gravity make:module User --views');
+}
+
+function parseOptions(array $args): array {
+	$options = [
+		'force' => false,
+		'views' => false,
+		'layout' => 'GRAVITY.layout',
+		'title' => null,
+		'entity' => null,
+		'table' => null,
+	];
+
+	$positionals = [];
+	foreach ($args as $arg) {
+		if (substr($arg, 0, 2) === '--') {
+			if ($arg === '--force') $options['force'] = true;
+			elseif ($arg === '--views') $options['views'] = true;
+			elseif (strpos($arg, '--layout=') === 0) $options['layout'] = substr($arg, 9);
+			elseif (strpos($arg, '--title=') === 0) $options['title'] = substr($arg, 8);
+			elseif (strpos($arg, '--entity=') === 0) $options['entity'] = substr($arg, 9);
+			elseif (strpos($arg, '--table=') === 0) $options['table'] = substr($arg, 8);
+			else println("[warn] Option inconnue: {$arg}");
+		} else {
+			$positionals[] = $arg;
+		}
+	}
+
+	return [$positionals, $options];
+}
+
+function ensureDir(string $dir): void {
+	if (!is_dir($dir)) {
+		if (!mkdir($dir, 0777, true) && !is_dir($dir)) {
+			throw new RuntimeException("Impossible de créer le dossier: {$dir}");
+		}
+	}
+}
+
+function writeFile(string $path, string $content, bool $force): void {
+	if (file_exists($path) && !$force) {
+		throw new RuntimeException("Le fichier existe déjà: {$path} (utilisez --force pour écraser)");
+	}
+	if (false === file_put_contents($path, $content)) {
+		throw new RuntimeException("Échec d'écriture: {$path}");
+	}
+}
+
+function normalizeName(string $name, string $suffixIfMissing): string {
+	return (substr($name, -strlen($suffixIfMissing)) === $suffixIfMissing) ? $name : $name . $suffixIfMissing;
+}
+
+function makeController(string $name, array $options): string {
+	$root = realpath(__DIR__);
+	$name = normalizeName($name, 'Controller');
+	$namespace = 'App\\Controllers';
+	$dir = $root . '/src/app/Controllers';
+	$file = $dir . '/' . $name . '.php';
+	ensureDir($dir);
+
+	$code = <<<PHP
+<?php
+
+namespace App\\Controllers;
+
+class {$name} extends BaseController {
+
+
+	public function index() {}
+
+
+	public function search(\$id) {}
+
+
+	public function store() {}
+
+
+	public function update(\$id) {}
+
+
+	public function delete(\$id) {}
+
+}
+
+?>
+PHP;
+
+	writeFile($file, $code, (bool)$options['force']);
+	return $file;
+}
+
+function makeEntity(string $name, array $options): string {
+	$root = realpath(__DIR__);
+	$namespace = 'App\\Entity';
+	$dir = $root . '/src/app/Entity';
+	$file = $dir . '/' . $name . '.php';
+	ensureDir($dir);
+
+	$code = <<<PHP
+<?php
+
+namespace App\\Entity;
+
+class {$name} extends Entity {
+
+	protected static \$required = [];
+}
+
+?>
+PHP;
+
+	writeFile($file, $code, (bool)$options['force']);
+	return $file;
+}
+
+function makeRepository(string $name, array $options): string {
+	$root = realpath(__DIR__);
+	$name = normalizeName($name, 'Repository');
+	$namespace = 'App\\Repository';
+	$dir = $root . '/src/app/Repository';
+	$file = $dir . '/' . $name . '.php';
+	ensureDir($dir);
+
+	$entityUse = '';
+	$entityHint = '';
+	$entityClass = '';
+	$tableName = '';
+	if (!empty($options['entity'])) {
+		$entityClass = preg_replace('/^App\\\\Entity\\\\/', '', $options['entity']);
+		$entityUse = "use App\Entity\\{$entityClass};\n";
+		$entityHint = "{$entityClass}";
+		$tableName = lcfirst($entityClass).'s';
+	}
+
+	if(!empty($options['table']))
+		$tableName = $options['table'];
+
+	$code = <<<PHP
+<?php
+
+namespace App\Repository;
+
+{$entityUse}
+class {$name} extends Repository
+{
+PHP;
+
+if ($entityClass != '') {
+    $code .= <<<PHP
+
+    protected static \$entity = {$entityClass}::class;
+	protected static \$table = '{$tableName}';
+PHP;
+}
+
+$code .= <<<PHP
+
+}
+?>
+PHP;
+
+
+	writeFile($file, $code, (bool)$options['force']);
+	return $file;
+}
+
+function makeRoutes(string $name, array $options): string {
+	$root = realpath(__DIR__);
+	$name = normalizeName($name, 'Routes');
+	$namespace = 'Routing';
+	$dir = $root . '/src/routes';
+	$file = $dir . '/' . $name . '.php';
+	ensureDir($dir);
+
+	$controllerClass = '';
+	$entityClass = '';
+	$useController = '';
+	$tableName = '';
+
+	if(!empty($options['entity'])) {
+		$entityClass = preg_replace('/^App\\\\Entity\\\\/', '', $options['entity']);
+		$controllerClass = "App\\Controllers\\{$entityClass}Controller";
+		$useController = "use {$controllerClass};\n";
+		$tableName = lcfirst($entityClass).'s';
+	}
+
+	$code = <<<PHP
+<?php
+
+namespace Routing;
+
+use Gravity\\Core\\Routing\\ResourceRoutes;
+use Gravity\\Core\\Routing\\Route;
+{$useController}
+
+class {$name} extends ResourceRoutes {
+
+	public function __construct() {
+PHP;
+    if($entityClass != '') {
+		$code .= <<<PHP
+
+
+				\$this->get = [
+					new Route('/{$tableName}', [{$entityClass}Controller::class, 'index']),
+					new Route('/{$tableName}/:id', [{$entityClass}Controller::class, 'search']),
+				];
+
+				\$this->post = [
+					new Route('/{$tableName}', [{$entityClass}Controller::class, 'store']),
+				];
+
+				\$this->put = [
+					new Route('/{$tableName}/:id', [{$entityClass}Controller::class, 'updae']),
+				];
+
+				\$this->patch = [
+				];
+
+				\$this->delete = [
+					new Route('/{$tableName}/:id', [{$entityClass}Controller::class, 'delete']),
+				];
+
+		PHP;
+	} else {
+
+		$code .= <<<PHP
+
+
+				\$this->get = [
+					// new Route('/path', [\\App\\Controllers\\SomeController::class, 'index']),
+				];
+
+				\$this->post = [
+				];
+
+				\$this->put = [
+				];
+
+				\$this->patch = [
+				];
+
+				\$this->delete = [
+				];
+
+		PHP;
+	}
+
+	$code .= <<<PHP
+	
+	}
+
+}
+
+?>
+PHP;
+
+	writeFile($file, $code, (bool)$options['force']);
+	return $file;
+}
+
+function makeResource(string $name, array $options): string {
+	$root = realpath(__DIR__);
+	$nameFormatted = normalizeName($name, 'Resource');
+	$namespace = 'App\\Resources';
+	$dir = $root . '/src/app/Resources';
+	$file = $dir . '/' . $nameFormatted . '.php';
+	ensureDir($dir);
+
+	$useEntity = 'use App\Entity\\' . $name . ';' . PHP_EOL;
+
+	$code = <<<PHP
+<?php
+
+namespace {$namespace};
+
+{$useEntity}
+
+class {$nameFormatted} extends Resource {
+
+	protected \$entity = {$name}::class;
+
+
+	function toArray() {
+		\$data = \$this->entity->toArray();
+
+		return \$data;
+	}
+
+}
+
+?>
+PHP;
+
+	writeFile($file, $code, (bool)$options['force']);
+	return $file;
+}
+
+function dotToTemplatePath(string $dot): array {
+	$parts = explode('.', $dot);
+	$filename = array_pop($parts) . '.php';
+	$dirParts = $parts;
+	return [$dirParts, $filename];
+}
+
+function makeView(string $dotNotation, array $options): string {
+	$root = realpath(__DIR__);
+	[$dirParts, $filename] = dotToTemplatePath($dotNotation);
+	$dir = $root . '/templates/' . implode('/', $dirParts);
+	$file = $dir . '/' . $filename;
+	ensureDir($dir);
+
+	$title = $options['title'] ?: $dotNotation;
+
+	$code = <<<PHP
+<?php \$title = "{$title}"; ?>
+
+<div class="container">
+	<h1>{$title}</h1>
+	<p>Votre vue "{$dotNotation}" est prête.</p>
+</div>
+PHP;
+
+	writeFile($file, $code, (bool)$options['force']);
+	return $file;
+}
+
+function makeModule(string $name, array $options): array {
+	$created = [];
+	$created[] = makeController($name . 'Controller', $options);
+	$created[] = makeEntity($name, $options);
+	$created[] = makeRepository($name . 'Repository', array_merge($options, ['entity' => $name]));
+	$created[] = makeResource($name, $options);
+	$created[] = makeRoutes($name . 'Routes', array_merge(($options), ['entity' => $name]));
+
+	if (!empty($options['views'])) {
+		$base = $name;
+		$views = ['index', 'show', 'create', 'edit'];
+		foreach ($views as $view) {
+			$dot = $base . '.' . $view;
+			$title = ucfirst($base) . ' - ' . ucfirst($view);
+			$created[] = makeView($dot, array_merge($options, ['title' => $title]));
+		}
+	}
+
+	return $created;
+}
+
+function main(array $argv): int {
+	array_shift($argv); // script name
+	if (count($argv) === 0) {
+		usage();
+		return EXIT_FAILURE;
+	}
+
+	$command = array_shift($argv);
+	[$args, $options] = parseOptions($argv);
+
+	try {
+		switch ($command) {
+			case 'make:controller':
+				if (empty($args[0])) throw new InvalidArgumentException('Nom du contrôleur requis');
+				$file = makeController($args[0], $options);
+				println("[ok] Contrôleur créé: {$file}");
+				break;
+			case 'make:entity':
+				if (empty($args[0])) throw new InvalidArgumentException('Nom de l\'entité requis');
+				$file = makeEntity($args[0], $options);
+				println("[ok] Entité créée: {$file}");
+				break;
+			case 'make:repository':
+				if (empty($args[0])) throw new InvalidArgumentException('Nom du repository requis');
+				$file = makeRepository($args[0], $options);
+				println("[ok] Repository créé: {$file}");
+				break;
+			case 'make:resource':
+				if (empty($args[0])) throw new InvalidArgumentException('Nom de la ressource requis');
+				$file = makeResource($args[0], $options);
+				println("[ok] Ressource créée: {$file}");
+				break;
+			case 'make:routes':
+				if (empty($args[0])) throw new InvalidArgumentException('Nom de la classe de routes requis');
+				$file = makeRoutes($args[0], $options);
+				println("[ok] Routes créées: {$file}");
+				break;
+			case 'make:view':
+				if (empty($args[0])) throw new InvalidArgumentException('Nom de la vue (dot notation) requis');
+				$file = makeView($args[0], $options);
+				println("[ok] Vue créée: {$file}");
+				break;
+			case 'make:module':
+				if (empty($args[0])) throw new InvalidArgumentException('Nom de la ressource requis');
+				$files = makeModule($args[0], $options);
+				println("[ok] Module créé:");
+				foreach ($files as $f) println("  - {$f}");
+				break;
+			case 'help':
+			case '--help':
+			case '-h':
+				usage();
+				break;
+			default:
+				println("Commande inconnue: {$command}");
+				usage();
+				return EXIT_FAILURE;
+		}
+	} catch (Throwable $e) {
+		println('[error] ' . $e->getMessage());
+		return EXIT_FAILURE;
+	}
+
+	return EXIT_SUCCESS;
+}
+
+exit(main($argv));
