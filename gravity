@@ -248,7 +248,7 @@ PHP;
 				];
 
 				\$this->put = [
-					new Route('/{$tableName}/:id', [{$entityClass}Controller::class, 'updae']),
+					new Route('/{$tableName}/:id', [{$entityClass}Controller::class, 'update']),
 				];
 
 				\$this->patch = [
